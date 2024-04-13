@@ -1,0 +1,185 @@
+import numpy as np
+import pandas as pd
+
+df=pd.read_csv("/content/car economy price.csv")
+df
+
+df.head()
+
+df.tail()
+
+df.size
+
+df.shape
+
+df.isna().sum()
+
+#visualization
+
+df.dtypes
+
+import seaborn as sns
+df['Fuel_Type'].value_counts()
+
+sns.countplot(y='Fuel_Type',data=df)
+
+df['Owner_Type'].value_counts()
+
+sns.countplot(y='Owner_Type',data=df)
+
+#ENCODING
+
+dummy=pd.get_dummies(df[['Location','Fuel_Type','Transmission','Owner_Type']],drop_first=True)
+
+dummy
+
+df1=pd.concat([df,dummy],axis=1)
+df1
+
+#drop unnecessary columns
+
+df1.columns
+
+df1=df1.drop(['Unnamed: 0','Name','Location','Fuel_Type','Transmission','Owner_Type','New_Price'],axis=1)
+df1
+
+#replace string values
+
+df1['Mileage']=df1['Mileage'].str.replace('km/kg','')
+
+df1['Mileage']=df1['Mileage'].str.replace('kmpl','')
+
+df1['Engine']=df1['Engine'].str.replace('CC','')
+
+df1['Power']=df1['Power'].str.replace('bhp','')
+
+#replace null values into 0
+
+df1['Mileage']=df1['Mileage'].str.replace('null','0')
+df1['Engine']=df1['Engine'].str.replace('null','0')
+df1['Power']=df1['Power'].str.replace('null','0')
+
+df1
+
+df1.dtypes
+
+#convert object data types into float
+
+df1['Mileage']=df1['Mileage'].astype(float)
+
+df1['Engine']=df1['Engine'].astype(float)
+
+df1['Power']=df1['Power'].astype(float)
+
+df1.dtypes
+
+#converting the zero values in Mileage,Engine,Power to missing values
+
+df1.loc[df1.Mileage==0,'Mileage']=np.NaN
+
+df1.loc[df1.Power==0,'Power']=np.NaN
+
+df1.loc[df1.Engine==0,'Engine']=np.NaN
+
+df1.isna().sum()
+
+#filling columns with continous values use mean/median or filling columns with descrete values use mode
+
+df1['Mileage']=df1['Mileage'].fillna(df1['Mileage'].mean())
+
+df1['Power']=df1['Power'].fillna(df1['Power'].mean())
+
+df1['Engine']=df1['Engine'].fillna(df1['Engine'].mean())
+
+df1['Seats']=df1['Seats'].fillna(df1['Seats'].mode()[0])
+
+#separates data into x and y
+
+x1=df1.drop(['Price','Fuel_Type_Electric'],axis=1)
+x1
+
+y1=df1['Price']
+y1
+
+LOAD TEST DATA
+
+df2=pd.read_csv("/content/test-data.csv")
+df2
+
+df2.head()
+
+df2.tail()
+
+df2.size
+
+df2.shape
+
+df2.isna().sum()
+
+#encoding
+
+dummy1=pd.get_dummies(df2[['Location','Fuel_Type','Transmission','Owner_Type']],drop_first=True)
+dummy1
+
+df3=pd.concat([df2,dummy1],axis=1)
+df3
+
+#drop unnecessary columns
+
+df3.columns
+
+df3=df3.drop(['Unnamed: 0','Name','Location','Fuel_Type','Transmission', 'Owner_Type','New_Price'],axis=1)
+df3
+
+#replace string values
+
+df3['Mileage']=df3['Mileage'].str.replace('km/kg','')
+
+df3['Mileage']=df3['Mileage'].str.replace('kmpl','')
+
+df3['Engine']=df3['Engine'].str.replace('CC','')
+
+df3['Power']=df3['Power'].str.replace('bhp','')
+
+df3['Mileage']=df3['Mileage'].str.replace('null','0')
+
+df3['Engine']=df3['Engine'].str.replace('null','0')
+
+df3['Power']=df3['Power'].str.replace('null','0')
+
+df3.dtypes
+
+#converting object datatypes into float
+
+df3['Mileage']=df3['Mileage'].astype(float)
+
+df3['Engine']=df3['Engine'].astype(float)
+
+df3['Power']=df3['Power'].astype(float)
+
+#converting zero values in columns to missing values
+
+df3.loc[df3.Mileage==0,'Mileage']=np.NaN
+
+df3.loc[df3.Engine==0,'Engine']=np.NaN
+
+df3.loc[df3.Power==0,'Power']=np.NaN
+
+df3.isna().sum()
+
+df3['Mileage']=df3['Mileage'].fillna(df3['Mileage'].mean())
+
+df3['Engine']=df3['Engine'].fillna(df3['Engine'].mean())
+
+df3['Power']=df3['Power'].fillna(df3['Power'].mean())
+
+df3['Seats']=df3['Seats'].fillna(df3['Seats'].mode()[0])
+
+#model creation
+
+from sklearn.linear_model import LinearRegression
+model=LinearRegression()
+model.fit(x1,y1)
+
+y_pred=model.predict(df3)
+y_pred
